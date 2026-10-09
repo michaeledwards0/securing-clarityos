@@ -1,0 +1,8 @@
+// Azure Monitor log alert: Prompt Shields is failing, so caller input is reaching models unscreened (fail-open).
+// Fires when more than 2 events occur in 15 minutes.
+AppServiceConsoleLogs
+| where _ResourceId has "clarity-voice"
+| where ResultDescription has "clarity-voice-relay"
+| extend d = parse_json(extract(@"(\{.*\})", 1, ResultDescription))
+| extend Event = tostring(d.event)
+| where Event == "prompt_shield_unavailable"

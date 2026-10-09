@@ -1,0 +1,16 @@
+// Sentinel analytics rule: "Prompt injection attempt on ClarityOS AI receptionist"
+// Runs every 5 minutes over 5 minutes; any result raises an alert, grouped into one incident per LeadId.
+// Source: voice-relay writes one JSON line per security event to stdout -> AppServiceConsoleLogs.
+AppServiceConsoleLogs
+| where _ResourceId has "clarity-voice"
+| where ResultDescription has "clarity-voice-relay"
+// extract() first: App Service can prefix console lines, and a prefix makes a bare parse_json() return null.
+| extend d = parse_json(extract(@"(\{.*\})", 1, ResultDescription))
+| extend Event = tostring(d.event)
+| where Event == "prompt_attack_detected"
+| project TimeGenerated,
+    ClientId = tostring(d.clientId),
+    LeadId = tostring(d.leadId),
+    Channel = tostring(d.channel),
+    Turn = toint(d.turn),
+    Utterance = tostring(d.utterance)

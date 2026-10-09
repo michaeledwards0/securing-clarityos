@@ -1,0 +1,54 @@
+<!--
+  ClarityOS AI gateway: API Management policy on the Azure OpenAI API.
+
+  [VERIFY] Replace this file with the policy exported from the deployed API
+  (APIM -> APIs -> Azure OpenAI -> All operations -> Policies -> </> view),
+  or with the Terraform azurerm_api_management_api_policy content, once the
+  gateway is live. Values in {{double braces}} are named values in APIM.
+
+  Flow: agent (managed identity token) -> this policy -> Azure OpenAI (APIM's
+  own managed identity). No API keys exist anywhere in the path.
+-->
+<policies>
+  <inbound>
+    <base />
+
+    <!-- 1. Only known agent identities may call the model. -->
+    <validate-azure-ad-token tenant-id="{{tenant-id}}" header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized agent">
+      <audiences>
+        <audience>{{apim-audience}}</audience>
+      </audiences>
+      <client-application-ids>
+        <application-id>{{voice-relay-client-id}}</application-id>
+      </client-application-ids>
+    </validate-azure-ad-token>
+
+    <!-- Caller identity, used as the key for limits and metrics. -->
+    <set-variable name="agent" value="@(context.Request.Headers.GetValueOrDefault(&quot;Authorization&quot;, &quot;&quot;).AsJwt()?.Claims.GetValueOrDefault(&quot;appid&quot;, &quot;unknown&quot;))" />
+
+    <!-- 2. Per-agent token limit (OWASP LLM10). [VERIFY: tokens-per-minute] -->
+    <llm-token-limit counter-key="@((string)context.Variables[&quot;agent&quot;])" tokens-per-minute="{{agent-tpm-limit}}" estimate-prompt-tokens="true" remaining-tokens-header-name="x-remaining-tokens" />
+
+    <!-- 3. Token usage per agent, to Application Insights. -->
+    <llm-emit-token-metric namespace="clarity-ai-gateway">
+      <dimension name="Agent" value="@((string)context.Variables[&quot;agent&quot;])" />
+      <dimension name="API ID" />
+    </llm-emit-token-metric>
+
+    <!-- 4. Swap the caller's token for APIM's own managed identity token. -->
+    <authentication-managed-identity resource="https://cognitiveservices.azure.com" />
+    <set-backend-service backend-id="foundry-openai" />
+  </inbound>
+
+  <backend>
+    <base />
+  </backend>
+
+  <outbound>
+    <base />
+  </outbound>
+
+  <on-error>
+    <base />
+  </on-error>
+</policies>
