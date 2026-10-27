@@ -79,7 +79,7 @@ voice-relay --(Entra token, its managed identity)--> API Management --(APIM mana
 
 ## Evidence
 
-**[VERIFY: capture these, see [screenshots/README.md](../screenshots/README.md)]**
+
 
 - `screenshots/phase-2/01-kv-per-secret-grants.png`
 - `screenshots/phase-2/02-kb-ask-403.png`
