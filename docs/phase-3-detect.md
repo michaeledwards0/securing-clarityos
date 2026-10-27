@@ -47,8 +47,6 @@ See the [scorecard](../scorecard.md) for before/after against OWASP LLM Top 10 (
 
 ## Evidence
 
-**[VERIFY: capture these, see [screenshots/README.md](../screenshots/README.md)]**
-
 - `screenshots/phase-3/01-sentinel-incident.png` — incident with the utterance in custom details (blur client/lead IDs)
 - `screenshots/phase-3/02-sentinel-rule.png`
 - `screenshots/phase-3/03-defender-attack-path.png`
