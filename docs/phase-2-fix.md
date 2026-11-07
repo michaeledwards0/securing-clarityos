@@ -79,11 +79,11 @@ voice-relay --(Entra token, its managed identity)--> API Management --(APIM mana
 
 ## Evidence
 
-
-
-- `screenshots/phase-2/01-kv-per-secret-grants.png`
+  ## Keyvault Per Secret
+  <img width="1124" height="298" alt="image" src="https://github.com/user-attachments/assets/24cc0dc0-b5eb-4232-bc6f-c575e1b96b5c" />
 - `screenshots/phase-2/02-kb-ask-403.png`
-- `screenshots/phase-2/03-foundry-local-auth-disabled.png`
+  ## Foundry local auth disabled
+  <img width="1319" height="233" alt="image" src="https://github.com/user-attachments/assets/3558569e-8830-49d1-b4c0-697651f86334" />
 - `screenshots/phase-2/04-model-deployment.png`
 - `screenshots/phase-2/05-apim-policy.png`
 - `screenshots/phase-2/06-apim-token-limit-429.png` — a request over the limit returning 429
